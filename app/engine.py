@@ -1,104 +1,78 @@
 import torch
-from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
-import json
+from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig
 import os
 
-class SeleneBrain:
-    def __init__(self, model_id="google/gemma-2-2b-it"):
-        self.model_id = model_id
+class MedGemmaEngine:
+    def __init__(self, model_path="google/medgemma-1.5-4b-it"):
+        self.model_path = model_path
         self.tokenizer = None
         self.model = None
-        self.device = "cuda" if torch.cuda.is_available() else "cpu"
 
-    def load_model(self):
-        """Loads the model with 4-bit quantization if GPU is available, else loads on CPU."""
-        print(f"Loading model {self.model_id} on {self.device}...")
+    def load_model(self, token=None):
+        """Loads the model and tokenizer."""
+        print(f"Loading model from {self.model_path}...")
         
-        self.tokenizer = AutoTokenizer.from_pretrained(self.model_id)
-        
-        if self.device == "cuda":
-            # 4-bit Quantization Config
-            bnb_config = BitsAndBytesConfig(
-                load_in_4bit=True,
-                bnb_4bit_use_double_quant=True,
-                bnb_4bit_quant_type="nf4",
-                bnb_4bit_compute_dtype=torch.bfloat16
-            )
-            self.model = AutoModelForCausalLM.from_pretrained(
-                self.model_id,
-                quantization_config=bnb_config,
-                device_map="auto"
-            )
-        else:
-            # Fallback for CPU
-            print("CUDA not detected. Loading model on CPU (this may be slow).")
-            self.model = AutoModelForCausalLM.from_pretrained(
-                self.model_id,
-                torch_dtype=torch.float32,
-                device_map="cpu"
-            )
-        
-        print("Model loaded successfully.")
+        try:
+            self.tokenizer = AutoTokenizer.from_pretrained(self.model_path, token=token)
+            
+            # Simple loading with auto device map
+            # Assuming user might have GPU, but fallback is handled by library usually
+            # added 4-bit loading for memory efficiency if bitsandbytes is available
+            try:
+                quantization_config = BitsAndBytesConfig(
+                    load_in_4bit=True,
+                    bnb_4bit_compute_dtype=torch.float16
+                )
+                self.model = AutoModelForCausalLM.from_pretrained(
+                    self.model_path,
+                    quantization_config=quantization_config,
+                    device_map="auto",
+                    trust_remote_code=True,
+                    token=token
+                )
+            except Exception as e:
+                print(f"Failed to load with quantization (likely no GPU): {e}")
+                print("Falling back to CPU/standard load...")
+                self.model = AutoModelForCausalLM.from_pretrained(
+                    self.model_path,
+                    device_map="cpu", # Force CPU if quantization failed implying no GPU
+                    torch_dtype=torch.float32,
+                    trust_remote_code=True,
+                    token=token
+                )
 
-    def process_symptom(self, text):
-        """Converts user text into structured JSON using the LLM."""
+            return True, "Model loaded successfully!"
+        except Exception as e:
+            return False, f"Error loading model: {str(e)}"
+
+    def generate_response(self, messages, max_new_tokens=512):
+        """
+        Generates a response given a list of messages.
+        messages: list of dicts [{'role': 'user', 'content': '...'}, ...]
+        """
         if not self.model or not self.tokenizer:
-            return {"error": "Model not loaded. Please call load_model() first."}
+            return "Error: Model not loaded."
 
-        system_prompt = "You are SELENE, a menopause research partner. Convert the user's text into strict JSON: {symptom, severity, duration, clinical_category}."
-        
-        # Structure the prompt for Gemma (Instruct format)
-        messages = [
-            {"role": "user", "content": f"{system_prompt}\n\nUser input: {text}"}
+        # Apply chat template
+        input_ids = self.tokenizer.apply_chat_template(
+            messages,
+            add_generation_prompt=True,
+            return_tensors="pt"
+        ).to(self.model.device)
+
+        terminators = [
+            self.tokenizer.eos_token_id,
+            self.tokenizer.convert_tokens_to_ids("<end_of_turn>")
         ]
-        
-        # Apply chat template if available, otherwise simple string
-        try:
-            prompt = self.tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
-        except Exception:
-            prompt = f"{system_prompt}\n\nUser: {text}\n\nJSON Output:"
 
-        inputs = self.tokenizer(prompt, return_tensors="pt").to(self.device)
-        
-        with torch.no_grad():
-            outputs = self.model.generate(
-                **inputs, 
-                max_new_tokens=256,
-                do_sample=True,
-                temperature=0.7,
-                top_p=0.9
-            )
-        
-        response = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
-        
-        # Post-process to extract JSON
-        try:
-            # Look for the last JSON-like block in the response
-            json_start = response.rfind('{')
-            json_end = response.rfind('}') + 1
-            if json_start != -1 and json_end != -1:
-                json_str = response[json_start:json_end]
-                return json.loads(json_str)
-            else:
-                return {"error": "Could not parse JSON from model response", "raw_response": response}
-        except Exception as e:
-            return {"error": f"JSON parsing failed: {str(e)}", "raw_response": response}
+        outputs = self.model.generate(
+            input_ids,
+            max_new_tokens=max_new_tokens,
+            eos_token_id=terminators,
+            do_sample=True,
+            temperature=0.7,
+            top_p=0.9,
+        )
 
-    def save_to_journal(self, entry):
-        """Appends the structured entry to the local JSON store."""
-        journal_path = os.path.join(os.path.dirname(__file__), "..", "data", "journal.json")
-        try:
-            if os.path.exists(journal_path):
-                with open(journal_path, "r") as f:
-                    journal = json.load(f)
-            else:
-                journal = []
-            
-            journal.append(entry)
-            
-            with open(journal_path, "w") as f:
-                json.dump(journal, f, indent=4)
-            return True
-        except Exception as e:
-            print(f"Failed to save to journal: {e}")
-            return False
+        response = outputs[0][input_ids.shape[-1]:]
+        return self.tokenizer.decode(response, skip_special_tokens=True)

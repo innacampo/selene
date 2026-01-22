@@ -1,22 +1,24 @@
-# 🌙 SELENE - Menopause Research Partner
+# SELENE - Menopause Research Partner
+
+SELENE is under construction and will be released soon. 
 
 SELENE is a privacy-first AI companion designed to help women track and understand their health during midlife. It uses a local LLM to process and structure symptom logs without sending sensitive data to the cloud.
 
-## ✨ Key Features
+## Key Features
 
-- **🔒 Privacy-First**: All AI processing happens locally on your device.
-- **📝 Natural Language Logging**: Speak or type how you feel; SELENE structures the data.
-- **📊 Structured Journal**: Automatically converts entries into JSON for better tracking.
-- **🌓 LUCIA Palette**: A warm, accessible design inspired by the LUCIA health system.
+- **Privacy-First**: All AI processing happens locally on your device.
+- **Natural Language Logging**: Speak or type how you feel; SELENE structures the data.
+- **Structured Journal**: Automatically converts entries into JSON for better tracking.
 
-## 🛠 Technology Stack
+
+## Technology Stack
 
 - **Frontend**: [Streamlit](https://streamlit.io/)
 - **AI Engine**: [Hugging Face Transformers](https://huggingface.co/docs/transformers/index)
 - **Model**: [Gemma-2-2b-it](https://huggingface.co/google/gemma-2-2b-it) (4-bit quantized via `bitsandbytes`)
 - **Deep Learning**: [PyTorch](https://pytorch.org/)
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 
@@ -43,7 +45,7 @@ Start the Streamlit app:
 streamlit run app/main.py
 ```
 
-## 📖 How to Use
+## How to Use
 
 1. **Load the Engine**: In the sidebar, click the **"Load Engine"** button. This will initialize the Gemma model (may take a minute on CPU).
 2. **Log Symptoms**: Type your symptom check-in in the main text area (e.g., *"I've had hot flashes and trouble sleeping for two nights"*).
