@@ -25,7 +25,7 @@ Please read and follow our [Code of Conduct](CODE_OF_CONDUCT.md).
 
 1. **Fork & Clone**
    ```bash
-   git clone https://github.com/YOUR_USERNAME/selene.git
+   git clone https://github.com/innacampo/selene.git
    cd selene/selene
    ```
 
