@@ -7,18 +7,18 @@
 ---
 
 ## Table of contents
-1. [System Overview](#system-overview)
-2. [High-Level Architecture](#high-level-architecture)
-3. [Data & Knowledge Flow](#data--knowledge-flow)
-4. [Reasoning Engine (MedGemma)](#reasoning-engine-medgemma)
-5. [User Interaction Flows (Home, Attune, Insights, SOS)](#user-interaction-flows-home-attune-insights-sos)
-6. [Clinical Safety & Scope](#clinical-safety--scope)
-7. [Privacy & Security](#privacy--security)
-8. [Code Structure & Conventions](#code-structure--conventions)
-9. [Deployment & Runtime Considerations](#deployment--runtime-considerations)
-10. [Testing & Validation](#testing--validation)
-11. [Future Extensions & Technical Debt](#future-extensions--technical-debt)
-12. [Assumptions (explicit)](#assumptions-explicit)
+1. [System Overview](#1-system-overview)
+2. [High-Level Architecture](#2-high-level-architecture)
+3. [Data & Knowledge Flow](#3-data--knowledge-flow)
+4. [Reasoning Engine (MedGemma)](#4-reasoning-engine-medgemma)
+5. [User Interaction Flows (Home, Attune, Insights, SOS)](#5-user-interaction-flows-home-attune-insights-sos)
+6. [Clinical Safety & Scope](#6-clinical-safety--scope)
+7. [Privacy & Security](#7-privacy--security)
+8. [Code Structure & Conventions](#8-code-structure--conventions)
+9. [Deployment & Runtime Considerations](#9-deployment--runtime-considerations)
+10. [Testing & Validation](#10-testing--validation)
+11. [Future Extensions & Technical Debt](#11-future-extensions--technical-debt)
+12. [Assumptions (explicit)](#12-assumptions-explicit)
 
 
 ---
