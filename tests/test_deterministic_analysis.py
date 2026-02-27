@@ -82,6 +82,8 @@ class TestSymptomMapping:
         assert analyzer._map_symptom_to_score(None) is None
 
     def test_unknown_string_returns_none(self, analyzer):
+        # The function should return None for unrecognized symptom strings (e.g., 'garbage'),
+        # ensuring robustness against invalid input.
         assert analyzer._map_symptom_to_score("garbage") is None
 
     def test_unsupported_type_returns_none(self, analyzer):

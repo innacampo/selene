@@ -82,29 +82,29 @@ def clean_pdf_text(text: str) -> str:
     if not text:
         return ""
 
-    # 1. Remove Bibliography/References (The biggest source of noise)
-    # This splits at the first occurrence of "References" or "Bibliography"
+    # 1. Remove Bibliography/References (primary source of irrelevant content for NLP)
+    # This splits at the first occurrence of "References" or "Bibliography" to exclude citation sections that degrade downstream model accuracy.
     text = re.split(
         r"\n\s*(?:References|Bibliography|LITERATURE CITED|WORKS CITED)\s*\n",
         text,
         flags=re.IGNORECASE,
     )[0]
 
-    # 2. Remove typical PDF headers/footers (e.g., "Page 1 of 20" or journal names)
-    # Matches patterns like "Page 123", "Journal of Clinical...", "doi: 10.100..."
+    # 2. Remove typical PDF headers/footers (e.g., "Page 1 of 20", journal names, DOIs)
+    # These patterns are common in academic PDFs and can confuse NLP models if not removed.
     text = re.sub(r"(?i)Page\s+\d+(\s+of\s+\d+)?", "", text)
     text = re.sub(r"(?i)doi:\s*10\.\d{4,9}/[-._;()/:A-Z0-9]+", "", text)
     text = re.sub(r"(?i)Copyright\s+©.*?\d{4}.*?\.", "", text)
 
-    # 3. Clean Inline Citations (Stops MedGemma from getting stuck on names/years)
-    # Matches (Author, 2023), [12, 14-16], (Smith et al., 2019)
+    # 3. Clean Inline Citations (prevents MedGemma from misinterpreting author/year references as content)
+    # Matches (Author, 2023), [12, 14-16], (Smith et al., 2019) to reduce citation noise.
     text = re.sub(r"\[\d+(?:,\s*\d+|-?\d+)*\]", "", text)  # Matches [12] or [1-5]
     text = re.sub(
         r"\(\s*[A-Z][a-z]+(?:\set\sal\.)?,\s*\d{4}\s*\)", "", text
     )  # Matches (Smith, 2020)
 
     # 4. Remove Table and Figure Captions
-    # Often captions aren't useful without the image and just clutter the RAG
+    # Captions are typically not useful without the associated image and can clutter retrieval-augmented generation (RAG) pipelines.
     text = re.sub(r"(?i)(?:Figure|Fig|Table)\s+\d+.*?\n", "", text)
 
     # 5. Final Formatting: Strip excessive whitespace

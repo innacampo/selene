@@ -102,13 +102,16 @@ def calculate_report_metrics(
 
 def clean_report_text(report_text: str) -> str:
     """
-    Remove common LLM preambles and postambles from report text.
+    Cleans LLM-generated report text by removing common preambles (introductory phrases)
+    and postambles (concluding phrases) that are not relevant to the user.
+    The function attempts to start the cleaned output at the first markdown header (###)
+    or at the first substantial content line, and strips out boilerplate language.
 
     Args:
-        report_text: Raw LLM output
+        report_text (str): Raw output from the LLM, possibly containing generic intro/outro text.
 
     Returns:
-        Cleaned report text starting with first markdown header
+        str: Cleaned report text, suitable for display to the user, starting at meaningful content.
     """
     # Common preamble patterns to remove
     preamble_patterns = [

@@ -244,6 +244,7 @@ class TestMultiAgentLoadProfile:
     def test_defaults_when_missing(self, tmp_path):
         with patch.object(cb_multi, "USER_PROFILE_FILE", tmp_path / "nope.json"):
             profile = cb_multi.load_user_profile()
+            # 'Unknown' is returned when the profile file is missing, indicating no user stage is set.
             assert profile["stage_title"] == "Unknown"
             assert profile["profile_complete"] is False
 
@@ -262,6 +263,7 @@ class TestMultiAgentLoadProfile:
         pf.write_text("{{{bad json")
         with patch.object(cb_multi, "USER_PROFILE_FILE", pf):
             profile = cb_multi.load_user_profile()
+            # 'Unknown' is returned when the profile file is corrupt, indicating fallback to default values.
             assert profile["stage_title"] == "Unknown"
 
 

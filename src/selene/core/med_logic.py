@@ -122,7 +122,11 @@ class TTLCache:
             logger.debug(f"Cache SET: {key[:50]}... (TTL: {ttl_seconds}s)")
 
     def _evict_oldest(self):
-        """Remove oldest cache entry. Caller must hold self._lock."""
+        """
+        Remove the oldest cache entry from the TTLCache.
+        Caller must hold self._lock to ensure thread safety.
+        This method is used to maintain cache size limits and prevent stale data accumulation.
+        """
         if not self.cache:
             return
         oldest_key = min(self.cache.keys(), key=lambda k: self.cache[k].timestamp)
@@ -130,7 +134,10 @@ class TTLCache:
         logger.debug(f"Cache EVICTED: {oldest_key[:50]}...")
 
     def clear(self):
-        """Clear all cache entries."""
+        """
+        Remove all entries from the cache and reset hit/miss statistics.
+        Useful for invalidating all cached data, e.g., after a major update.
+        """
         with self._lock:
             self.cache.clear()
             self.hits = 0
@@ -138,7 +145,10 @@ class TTLCache:
             logger.info("Cache CLEARED")
 
     def get_stats(self) -> dict[str, Any]:
-        """Get cache statistics."""
+        """
+        Return cache statistics including size, hits, misses, hit rate, and total requests.
+        Useful for monitoring cache performance and tuning TTLCache parameters.
+        """
         with self._lock:
             total_requests = self.hits + self.misses
             hit_rate = (self.hits / total_requests * 100) if total_requests > 0 else 0

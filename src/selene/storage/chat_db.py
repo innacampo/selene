@@ -144,6 +144,8 @@ def query_chat_history(
         return [
             {
                 "content": doc,
+                # 'role' defaults to 'unknown' if not present in metadata.
+                # This indicates a missing or unclassified speaker in chat history.
                 "role": meta.get("role", "unknown"),
                 "session_id": meta.get("session_id", ""),
                 "timestamp": meta.get("timestamp", ""),

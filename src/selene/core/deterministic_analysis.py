@@ -302,7 +302,12 @@ class DeterministicAnalyzer:
         return correlations
 
     def _analyze_trend(self, values: np.ndarray) -> tuple[str, float]:
-        """Analyze overall trend direction and strength."""
+        """
+        Analyze overall trend direction and strength in symptom scores.
+        Returns:
+            direction (str): 'stable', 'worsening', 'improving', or 'unknown' if insufficient data.
+            strength (float): R-squared value indicating trend strength (0.0 if unknown).
+        """
         if len(values) < self.min_data_points:
             return "unknown", 0.0
 
