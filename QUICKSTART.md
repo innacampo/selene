@@ -25,8 +25,9 @@ pip install -e ".[dev]"
 # 4. Set up pre-commit hooks
 pre-commit install
 
-# 5. Pull the MedGemma model (one-time)
-ollama pull MedAIBase/MedGemma1.5:4b
+# 5. Pull the models (one-time)
+ollama pull medgemma:27b
+ollama pull nomic-embed-text
 
 # 6. Run tests to verify setup
 python -m pytest tests/ -v

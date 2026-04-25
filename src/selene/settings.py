@@ -8,11 +8,10 @@ instead of hardcoding values across modules.
 
 import os
 
-# Force libraries to only look for local files - must be set before
-# importing transformers, sentence_transformers, or huggingface_hub.
-os.environ.setdefault("TRANSFORMERS_OFFLINE", "1")
-os.environ.setdefault("HF_DATASETS_OFFLINE", "1")
-os.environ.setdefault("HF_HUB_OFFLINE", "1")
+# Disable offline HF flags since we no longer use Hugging Face for embeddings
+# os.environ.setdefault("TRANSFORMERS_OFFLINE", "1")
+# os.environ.setdefault("HF_DATASETS_OFFLINE", "1")
+# os.environ.setdefault("HF_HUB_OFFLINE", "1")
 from pathlib import Path
 
 # ============================================================================
@@ -39,7 +38,7 @@ PAPERS_DIR = DATA_DIR / "papers"
 DB_PATH = str(USER_DATA_DIR / "user_med_db")
 MEDICAL_DOCS_COLLECTION = "medical_docs"
 CHAT_HISTORY_COLLECTION = "chat_history"
-EMBEDDING_MODEL = "all-MiniLM-L6-v2"
+EMBEDDING_MODEL = "nomic-embed-text"
 CHROMA_TELEMETRY = False
 
 # ============================================================================
@@ -48,7 +47,7 @@ CHROMA_TELEMETRY = False
 
 OLLAMA_BASE_URL = "http://localhost:11434"
 OLLAMA_TIMEOUT = 60
-LLM_MODEL = "MedAIBase/MedGemma1.5:4b"
+LLM_MODEL = "medgemma:27b"
 
 # ============================================================================
 # RAG & Chat History Retrieval
@@ -101,16 +100,17 @@ _embedding_function_instance = None
 def get_embedding_function():
     """Return a cached ChromaDB-compatible embedding function.
 
-    Uses ChromaDB's built-in ``SentenceTransformerEmbeddingFunction`` so the
-    persisted collection metadata stays consistent (type ``sentence_transformer``).
+    Uses ChromaDB's built-in ``OllamaEmbeddingFunction`` so the
+    persisted collection metadata stays consistent.
     The model is loaded once and reused across all callers (Streamlit app and
     CLI tools like update_kb_chroma.py).
     """
     global _embedding_function_instance
     if _embedding_function_instance is None:
-        from chromadb.utils.embedding_functions import SentenceTransformerEmbeddingFunction
+        from chromadb.utils.embedding_functions import OllamaEmbeddingFunction
 
-        _embedding_function_instance = SentenceTransformerEmbeddingFunction(
+        _embedding_function_instance = OllamaEmbeddingFunction(
+            url=f"{OLLAMA_BASE_URL}/api/embeddings",
             model_name=EMBEDDING_MODEL
         )
     return _embedding_function_instance

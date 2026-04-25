@@ -45,7 +45,7 @@ class ChatDBConfig:
 def _get_chat_client():
     """
     Returns a (collection, None) tuple on success, cached for the app lifetime.
-    Uses the same SentenceTransformer embedding model as med_logic so both
+    Uses the same Ollama embedding model as med_logic so both
     collections live in the same vector space - consistent and efficient.
     """
     try:

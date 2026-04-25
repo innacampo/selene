@@ -22,9 +22,12 @@ except ImportError:
     sys.exit("Python venv module missing. Install python3-venv package.")
 PY
 
-# 2. Pull MedGemma
+# 2. Pull Models
 echo "Pulling MedGemma model (this may take a few minutes)..."
-ollama pull MedAIBase/MedGemma1.5:4b
+ollama pull medgemma:27b
+
+echo "Pulling embedding model..."
+ollama pull nomic-embed-text
 
 # Verify Ollama service responds (helpful if serve is not running)
 if command -v curl >/dev/null 2>&1; then

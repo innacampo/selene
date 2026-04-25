@@ -27,7 +27,7 @@ If applicable, add screenshots or log snippets.
 - **OS**: [e.g., Ubuntu 22.04, macOS 14]
 - **Python version**: [e.g., 3.13.1]
 - **Ollama version**: [e.g., 0.3.x]
-- **MedGemma model**: [e.g., MedAIBase/MedGemma1.5:4b]
+- **MedGemma model**: [e.g., medgemma:27b]
 - **Browser** (if UI issue): [e.g., Chrome 120]
 
 ## Additional Context

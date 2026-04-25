@@ -111,7 +111,7 @@
 
 ### Vector-based retrieval (RAG)
 - Knowledge base stored in Chroma `medical_docs`.
-- Embeddings via `settings.get_embedding_function()` (SentenceTransformer).
+- Embeddings via `settings.get_embedding_function()` (OllamaEmbeddingFunction).
 - `med_logic.query_knowledge_base()` performs retrieval, formats chunks with `SOURCE` and `SECTION`, and returns (context, sources, full_results).
 - `update_kb_chroma.py` provides tools to import Chroma exports, clear collection contents safely, and keep collection IDs stable.
 
@@ -139,14 +139,14 @@
 
 ### What never leaves the device (by design)
 - User profile, pulse entries, chat history, and local knowledge base contents **are not transmitted externally** by the provided code paths.
-- Chroma telemetry is disabled (`CHROMA_TELEMETRY = False`). Transformers/HF offline flags are set in `settings.py`.
+- Chroma telemetry is disabled (`CHROMA_TELEMETRY = False`).
 
 ---
 
 ## 4. Reasoning Engine
 
 ### Model choice: MedGemma
-- Configured model: `settings.LLM_MODEL = "MedAIBase/MedGemma1.5:4b"`.
+- Configured model: `settings.LLM_MODEL = "medgemma:27b"`.
 - Rationale:
   - Domain-adapted medical reasoning (specialized training for menopause/clinical texts).
   - Size and local-run compatibility balance for edge devices when deployed via Ollama.
@@ -265,7 +265,7 @@
 
 ### Local-only processing guarantees
 - All user data (profile, pulse, chat) and the knowledge base (Chroma collections) are stored locally under `settings.USER_DATA_DIR` by default.
-- The LLM interaction is intended to occur to a local Ollama endpoint. `settings.py` sets `TRANSFORMERS_OFFLINE=1`, `HF_DATASETS_OFFLINE=1`, `HF_HUB_OFFLINE=1`, and `CHROMA_TELEMETRY=False`.
+- The LLM interaction is intended to occur to a local Ollama endpoint. `settings.py` sets `CHROMA_TELEMETRY=False`.
 
 ### Storage model
 - File-based: `user_data/pulse_history.json`, `user_data/user_profile.json`.
@@ -280,7 +280,7 @@
 ### Threat model
 - Protects against accidental network leakage and default external telemetry:
   - CHROMA_TELEMETRY disabled.
-  - HF/transformers offline env flags set.
+  - Uses local Ollama for embeddings.
 - Does not protect against:
   - Host compromise (malicious software or root access).
   - Misconfiguration where remote LLM endpoints are permitted (must be audited).
@@ -343,7 +343,7 @@
 
 ### Resource constraints
 - LLMs (MedGemma) require significant RAM/VRAM. Ollama hosting may require GPU or optimized CPU inference.
-- Sentencetransformer embedding uses CPU if no GPU; embedding large KBs has CPU and memory cost.
+- Ollama embedding requires Ollama to be running.
 
 ### Performance considerations
 - Caching:
@@ -417,7 +417,7 @@
 - The host device is trusted and not compromised.
 - Ollama and local model files are available locally or via a local host endpoint; the system is not configured to use remote LLM endpoints in the default repo configuration.
 - Disk-level encryption and OS security are the recommended mechanism for protecting data at rest unless the operator integrates additional encryption.
-- CHROMA_TELEMETRY and offline mode flags (`TRANSFORMERS_OFFLINE`, `HF_DATASETS_OFFLINE`, `HF_HUB_OFFLINE`) set in `settings.py` are respected by installed libraries.
+- CHROMA_TELEMETRY disabled in `settings.py`.
 
 ---
 
@@ -425,8 +425,8 @@
 
 ### Notable config values (in `settings.py`) 
 - `DB_PATH = 'user_data/user_med_db'`
-- `LLM_MODEL = 'MedAIBase/MedGemma1.5:4b'`
-- `EMBEDDING_MODEL = 'all-MiniLM-L6-v2'`
+- `LLM_MODEL = 'medgemma:27b'`
+- `EMBEDDING_MODEL = 'nomic-embed-text'`
 - `RAG_TOP_K = 2`
 - Cache TTLs: contextualized_queries 300s, rag_cache 600s, user_context_cache 180s.
 

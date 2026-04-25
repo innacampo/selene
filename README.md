@@ -18,7 +18,7 @@ SELENE is a research prototype developed at HARMONI Lab, exploring privacy-prese
 - Daily Attune: capture rest/internal weather/clarity + notes; validated saves with backups.
 - Chat: contextualized queries, Chroma RAG, past-session recall, streaming MedGemma responses.
 - Clinical summary: deterministic stats/patterns/risk + single MedGemma call; PDF export via xhtml2pdf.
-- Local knowledge base: Chroma collections (medical_docs, chat_history) with SentenceTransformer embeddings.
+- Local knowledge base: Chroma collections (medical_docs, chat_history) with Ollama embeddings.
 - Safety: deterministic risk flags, conservative prompts, low temperature, offline defaults.
 
 ## Architecture (brief)
@@ -33,7 +33,7 @@ SELENE is a research prototype developed at HARMONI Lab, exploring privacy-prese
 
 ## Prerequisites
 - Python 3.11+
-- Ollama running locally with model `MedAIBase/MedGemma1.5:4b` pulled
+- Ollama running locally with model `medgemma:27b` pulled
 - Basic build deps for scientific stack (numpy/scipy/pandas) and xhtml2pdf; install via requirements.txt
 
 ## Quick Start
@@ -49,7 +49,7 @@ source med_env/bin/activate
 pip install -e ".[dev]"
 
 # 3. Pull model in Ollama (once)
-ollama pull MedAIBase/MedGemma1.5:4b
+ollama pull medgemma:27b
 
 # 4. Launch app
 streamlit run app.py
@@ -92,11 +92,11 @@ See [DIRECTORY_STRUCTURE.md](DIRECTORY_STRUCTURE.md) for the full tree.
 
 ## Configuration Highlights
 - Paths, model names, cache TTLs in [settings.py](src/selene/settings.py): RAG_TOP_K=2, contextualize cache 300s, RAG cache 600s, user context cache 180s.
-- Offline/telemetry disabled by default via envs set in settings (TRANSFORMERS_OFFLINE, HF_*_OFFLINE, CHROMA_TELEMETRY=False).
+- Offline/telemetry disabled by default via envs set in settings (CHROMA_TELEMETRY=False).
 - Logging defaults to DEBUG; file logging enabled by default (toggle LOG_TO_FILE).
 
 ## Knowledge Base Management
-- Chroma collections live under `data/user_data/user_med_db`; embeddings via SentenceTransformer all-MiniLM-L6-v2.
+- Chroma collections live under `data/user_data/user_med_db`; embeddings via Ollama nomic-embed-text.
 - Import/export and collection maintenance via [scripts/update_kb_chroma.py](scripts/update_kb_chroma.py) (keeps collection IDs stable).
 
 ## Safety & Guardrails
