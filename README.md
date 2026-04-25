@@ -7,6 +7,8 @@
 
 > Privacy-first menopause assistant: local symptom tracking, RAG-backed chat, and clinician-style summaries powered by MedGemma.
 
+SELENE is a research prototype developed at HARMONI Lab, exploring privacy-preserving clinical AI for underserved women's health conditions. Originally built for the [MedGemma Impact Challenge](https://www.kaggle.com/competitions/med-gemma-impact-challenge/overview)  on Kaggle and actively developed as an open research platform for perimenopause health modeling.
+
 ## Overview
 
 - **Runs fully on-device**: user data stays under `data/user_data/`; LLM calls target a local Ollama endpoint.
