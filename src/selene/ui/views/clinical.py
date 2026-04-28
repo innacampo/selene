@@ -196,8 +196,19 @@ def render_clinical():
                     )
                     st.success("Report generated successfully!")
                 else:
-                    logger.error("render_clinical: report generation failed error=%s", result)
-                    st.error(f"{result}")
+                    # Graceful exit for missing data
+                    if any(
+                        msg in result
+                        for msg in ["No pulse data", "Insufficient data", "completeness too low"]
+                    ):
+                        logger.info("render_clinical: report generation skipped: %s", result)
+                        st.info(
+                            f"{result}. Please add more pulse check-ins for this period to generate a clinical report."
+                        )
+                    else:
+                        logger.error("render_clinical: report generation failed error=%s", result)
+                        st.error(f"Error generating report: {result}")
+
                     # Clear old report on error
                     if "clinical_report" in st.session_state:
                         del st.session_state.clinical_report

@@ -44,7 +44,7 @@ CHROMA_TELEMETRY = False
 # ============================================================================
 
 OLLAMA_BASE_URL = "http://localhost:11434"
-OLLAMA_TIMEOUT = 60
+OLLAMA_TIMEOUT = 300
 LLM_MODEL = "medgemma:27b"
 
 # ============================================================================
@@ -108,6 +108,8 @@ def get_embedding_function():
         from chromadb.utils.embedding_functions import OllamaEmbeddingFunction
 
         _embedding_function_instance = OllamaEmbeddingFunction(
-            url=f"{OLLAMA_BASE_URL}/api/embeddings", model_name=EMBEDDING_MODEL
+            url=f"{OLLAMA_BASE_URL}/api/embeddings",
+            model_name=EMBEDDING_MODEL,
+            timeout=OLLAMA_TIMEOUT,
         )
     return _embedding_function_instance

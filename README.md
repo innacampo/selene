@@ -50,6 +50,7 @@ pip install -e ".[dev]"
 
 # 3. Pull model in Ollama (once)
 ollama pull medgemma:27b
+ollama pull nomic-embed-text
 
 # 4. Launch app
 streamlit run app.py

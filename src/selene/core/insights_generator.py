@@ -297,7 +297,7 @@ def generate_insights_report(
         # Validate context
         is_valid, error_msg = validate_context(context)
         if not is_valid:
-            logger.error(f"Context validation failed: {error_msg}")
+            logger.info(f"Context validation failed: {error_msg}")
             return False, error_msg, None
 
         logger.info(

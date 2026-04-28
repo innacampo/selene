@@ -18,6 +18,7 @@ from selene.core.med_logic import (
     Config,
     call_medgemma_stream,
     contextualize_query,
+    get_chroma_collection,
     query_knowledge_base,
 )
 from selene.storage.chat_db import (
@@ -84,6 +85,19 @@ def render_chat() -> None:
         len(st.session_state.get("chat_history", [])),
     )
     render_header_with_back("back_chat")
+
+    # Check if knowledge base is available
+    collection, error = get_chroma_collection()
+    if collection is None:
+        st.error("**Knowledge Base Unavailable**")
+        st.error(f"ChromaDB Error: `{error}`")
+        st.info(
+            "Please initialize the knowledge base by running:\n"
+            "```bash\n"
+            "python scripts/update_kb_chroma.py output/medgemma_kb_20260220_093712.json\n"
+            "```"
+        )
+        st.stop()
 
     # Header
     col1, col2 = st.columns([3, 1])
